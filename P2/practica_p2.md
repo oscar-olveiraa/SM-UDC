@@ -1,3 +1,11 @@
+# Práctica 2 Servizos Multimedia
+
+## Autores: 
+Óscar Olveira Miniño
+
+Eloy Calvo Gens
+
+
 ### **Cuestión 1.1:** ¿Al hacer esta transformación de color, se produce alguna pérdida de información? ¿O por el contrario se genera nueva información al pasar de 1 a 3 imágenes?
 
 Ao facer a transformación de RGB a YCbCr non se perde nin se xenera nova información, soamente hai un cambio de modelo de cor.
