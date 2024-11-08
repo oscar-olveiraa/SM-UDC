@@ -29,3 +29,13 @@ A imaxen do submostreo cas crominancias (CrCb) non presenta ningún tipo de camb
 ### **Cuestion 5.1:** ¿Observas alguna diferencia entre los valores del bloque original y los valores recuperados mediante la IDCT? ¿Qué significa eso con respecto a la DCT?
 
 Non hai ningunha diferencia entre eles. Esto significa que si desfacemos a DCT sin cuantificar, vamos recuperar sempre a imaxen orixinal sin pérdida.
+
+
+### **Cuestion 6.1:** Anota los valores de salida. A la vista de ellos, ¿Con qué nivel de cuantización se consiguen un mayor número de valores en la matriz 𝐾? ¿A qué es debido?
+
+Cuanto menor ha sido el factor de escala, más valores no nulos.
+La matriz con la imagen original se divide por la de cuantificación, como esta última crece conforme crece el factor de escala obtenemos una matriz resultante de la división con valores cada vez más pequeños.
+
+### **Cuestion 6.2:** ¿Por qué se vuelven nulos algunos valores de las matrices cuantizadas pero no otros?
+
+Los valores nulos salen de esa división anteriormente mencionada. Estos valores nulos fueron los que se "eligieron" para ser descartados ahorrando espacio.
