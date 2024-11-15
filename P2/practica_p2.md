@@ -75,7 +75,9 @@ Este componente representa o valor medio de intensidade dun bloque de píxeles. 
 ### **Cuestion 12.2:** Observando las otras dos gráficas, ¿por qué se parece más al original la imagen con solo 3 coeficientes que la que usa 61? ¿Qué es lo que se estaría viendo realmente en esta última con respecto a las diferentes frecuencias que componen la imagen?
 
 FALTA EXPLICAR
+
 FALTA EXPLICAR
+
 FALTA EXPLICAR
 
 É normal que na imaxen donde temos o compoñente importate e uns pixeles máis se pareza mais
@@ -85,14 +87,20 @@ FALTA EXPLICAR
 Según esta táboa (sacada dos archivo Jupyter):
 
 20< pSNR(dB)     → mala calidad.
+
 20≤	pSNR(dB) <30 → calidad aceptable.
+
 30≤	pSNR(dB) <40 → calidad buena.
-	pSNR(dB) ≥40 → calidad muy buena.
+
+pSNR(dB) ≥40 → calidad muy buena.
+
 
 Resultado do exercicio:
 
 pSNR(Y), escalado 1:    	 33.37 dB
+
 pSNR(Y), escalado 0.25: 	 40.77 dB
+
 pSNR(Y), escalado 4:    	 29.24 dB
 
 Si comparamos a táboa de arriba cos resultados, vemos con escalado 0.25 obtemos a mellor calidad mentras que con escalado 4 obtemos a peor calidade. Esto débese a que con factor de cuantificacion 0.25, comprimimos a imaxen con menos diferencias que a imaxen orixinal polo que MSE tamén é menor.
