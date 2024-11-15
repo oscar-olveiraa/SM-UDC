@@ -58,4 +58,48 @@ Tal e como se ve, o fondo da imaxen apenas ten valores parte xa que é a parte m
 
 ### **Cuestión 9.1:** Comparando esta imágen con la del pájaro, ¿Qué diferencias observas en cuanto al número de coeficientes de la DCT no nulos? ¿Qué nos dice eso con respecto a la naturaleza (predominio de frecuencias altas o bajas) de cada imagen?
 
+Na imaxe do paxaro, parece que hai unha maior cantidade de valores nulos. Algo similar ocorre en áreas da imaxe do libro, como por exemplo no marxe, onde tamén se observan valores nulos. Isto suxire que a imaxe do libro ten unha frecuencia xeral máis baixa, o que leva a descartar menos coeficientes ao procesala.
+
+Na área do plumaxe do peito do paxaro ou nas ás, onde se deberían mostrar frecuencias altas, atopamos moitos valores nulos. Pola contra, na zona do texto, onde se esperaría unha menor frecuencia debido ao seu menor detalle visual, hai poucos valores nulos. Isto parece contraditorio respecto ao que se esperaría pola natureza das frecuencias nesas áreas.
+
+### **Cuestión 10.1:** ¿Se parecen las versiones cuantizadas entre sí? ¿Cual es la diferencia entre ellas? ¿A qué es debido?
+
+As imáxenes parecense, pero hai certos cambios cando cambiamos de factor de cuntificación. 
+Os bloques teñen valores que se dividen pola matriz de cuantización multiplicada polo factor de escala. Cando o factor de escala aumenta, a matriz de cuantización tamén aumenta, facendo que os valores divididos sexan máis pequenos. Se o resultado da división é moi pequeno, convértese en nulo. Por iso, a medida que o factor de escala crece, xéranse máis valores nulos no bloque entón diferencianse entre elas por este motivo.
+
+
+### **Cuestion 12.1:** Viendo la imagen en la que solo queda el coeficiente de DC tras la cuantificación, ¿Qué es lo que observas? ¿A qué es debido?
+
+Este componente representa o valor medio de intensidade dun bloque de píxeles. Se eliminamos todos os valores e deixamos ese píxel específico, a imaxe resultante parecería ter un só píxel grande que contén o cor medio de todos os píxeles eliminados.
+
+### **Cuestion 12.2:** Observando las otras dos gráficas, ¿por qué se parece más al original la imagen con solo 3 coeficientes que la que usa 61? ¿Qué es lo que se estaría viendo realmente en esta última con respecto a las diferentes frecuencias que componen la imagen?
+
+FALTA EXPLICAR
+FALTA EXPLICAR
+FALTA EXPLICAR
+
+É normal que na imaxen donde temos o compoñente importate e uns pixeles máis se pareza mais
+
+### **Cuestión 13.1:** ¿Cual es la versión con mayor calidad?¿A qué se debe?
+
+Según esta táboa (sacada dos archivo Jupyter):
+
+20< pSNR(dB)     → mala calidad.
+20≤	pSNR(dB) <30 → calidad aceptable.
+30≤	pSNR(dB) <40 → calidad buena.
+	pSNR(dB) ≥40 → calidad muy buena.
+
+Resultado do exercicio:
+
+pSNR(Y), escalado 1:    	 33.37 dB
+pSNR(Y), escalado 0.25: 	 40.77 dB
+pSNR(Y), escalado 4:    	 29.24 dB
+
+Si comparamos a táboa de arriba cos resultados, vemos con escalado 0.25 obtemos a mellor calidad mentras que con escalado 4 obtemos a peor calidade. Esto débese a que con factor de cuantificacion 0.25, comprimimos a imaxen con menos diferencias que a imaxen orixinal polo que MSE tamén é menor.
+
+### **Cuestion 14.1:** ¿Qué version consigue el menor tamaño? ¿A qué se debe esto?
+
+Con escala 4 obtemos un tamaño meno xa que ten poucos no nulos, polo que ao comprimir, comprimense mais nulos que no resto de escalados
+
+
 
