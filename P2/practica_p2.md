@@ -36,16 +36,20 @@ Non hai ningunha diferencia entre eles. Esto significa que si desfacemos a DCT s
 Valores da saída:
 
 Valores no nulos en la DCT original: 64
+
 Valores no nulos en la DCT cuantificada escala 1: 14
+
 Valores no nulos en la DCT cuantificada escala 0.25: 33
+ 
 Valores no nulos en la DCT cuantificada escala 4: 7
 
 Según os resultados que nos deron, canto maior sea o factor de escalado, máis nulos ten a matriz.
-A matriz ca imaxen orixinal dividese pola matriz de cuantificacióncuantificación, como esta última crece conforme maior sea o número do factor de cuantificación, obtemos una matriz resultante con valores cada vez máis pequenos (máis cercanos a cero).
+A matriz ca imaxen orixinal dividese pola matriz de cuantificación, como esta última crece conforme maior sea o número do factor de cuantificación, obtemos una matriz resultante con valores cada vez máis pequenos (máis cercanos a cero).
 
 ### **Cuestión 6.2:** ¿Por qué se vuelven nulos algunos valores de las matrices cuantizadas pero no otros?
 
-Os valores nulos son o resultado da división mencionada anteriormente. Estes valores nulos foron escollidos para ser eliminados, xa que ao descartalos afórrase espazo.
+Os valores nulos son o resultado da división mencionada anteriormente (redondeandoos ao enteiro máis cercano).
+Estes valores nulos foron escollidos para ser eliminados, xa que ao descartalos afórrase espazo.
 
 ### **Cuestión 7.1:** ¿Los valores recuperados diferentes de cero, tienen el mismo valor que en la DCT original? ¿Por qué?
 
