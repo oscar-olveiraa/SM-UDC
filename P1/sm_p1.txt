@@ -1,0 +1,270 @@
+DUDAS:
+
+same => n,GoSub(subVoicemail,start,1(${EXTEN},default,${Message})) -> QUE É ESE 1 E tamen O START
+
+Preguntar polo correo e polo nombre en voicemail.conf
+
+---------------------------------------
+Recargar asterisk despois de un cambio -> asterisk -x "core reload"
+
+Para a seccion TRANSPORT, cando se faga algun cambio é imprescindible facer un restart de asterisk, si non non se aplican (É na unica 
+seccion que fai falta).
+
+si definimos un usuario tipo aor (address of record), no flag max_contacts si o poñemos a 0 quere decir que non se limitara o numero de 
+endpoints. Esto quere decir creo que o usuario sip1 si ten o max_contacts=1, solamente pode ter ligado a un dispositivo. No flag 
+remove_existing, si poñemos 'yes', e temos max_contacts=1, pois eliminariase o usuario de un dispositivo e meteriase no actual, 
+mentras que si está en 'no', ao intentar ligar ese usuario a outro dispositivo rechazará a peticion -> ideal ter este ultimo flag
+a yes xa que si se che bloquea o linphone, tes que restartear o asterisk creo
+
+DIAPLAN:
+
+EJERCICIO 3:
+
+Análisis código:
+
+Linea 1 -> [sub_recordcallinfo]
+Linea 2 -> ; Record call information using AstDB
+Linea 3 -> ; Parameters:
+Linea 4 -> ; ARG1: User
+Linea 5 -> ; ARG2: Dialstatus
+Linea 6 -> exten => start,1,Verbose(3,Recording call info: User ${ARG1}, Status: ${ARG2})
+Linea 7 -> same => n,ExecIf($[${ARG2}=ANSWER]?Set(LOCAL(key)=a))
+Linea 8 -> same => n,ExecIf($[${ARG2}=BUSY]?Set(LOCAL(key)=b))
+Linea 9 -> same => n,ExecIf($[${ARG2}=CHANUNAVAIL]?Set(LOCAL(key)=u))
+Linea 10 -> same => n,ExecIf($[${ARG2}=NOANSWER]?Set(LOCAL(key)=n))
+Linea 11-> same => n,ExecIf(${ISNULL(${LOCAL(key)})}?Set(LOCAL(key)=o))
+Linea 12 -> same => n,Set(LOCAL(familykey)=calls_${ARG1}/${LOCAL(key)})
+Linea 13 -> same => n,Set(LOCAL(count)=${DB(${LOCAL(familykey)})})
+Linea 14 -> same => n,ExecIf($[${ISNULL(${LOCAL(count)})} = 1]?Set(LOCAL(count)=0))
+Linea 15 -> same => n,Set(DB(${familykey})=$[${LOCAL(count)} + 1])
+Linea 16 -> same => n,Return()
+---------------------------------------------
+Linea 1 -> especifica o nombre da subrutina (definese como calquer outro contexto en Asterisk)
+Linea 2,3,4,5 -> comentarios de asterisk (especificanse con ;)
+Linea 6 -> sive para definir unha accion que se executan cando un cliente marca o seu número asociado 
+           exten => numero_de_extension, prioridad, aplicacion
+                    - numero_de_extension: numero que debe marcar o cliente para que se execute a numero_de_extension
+                    - prioridad: cando a extesion ten varias opcions, cada unha debe ter un numero asocidado para indicar o orden que deben executarse
+                    - aplicacion: operacions que se executan en cada paso da extension (neste caso Verbose(nivel_verbosidad, mensaje) -> imprime un mensaje pola consola de asterisk)
+Linea 7,8,9,10 -> si unha extension ten varios pasos, executanse de forma secuencial usando same indicando tamen que seguimos na misma extension
+                  same => prioridad, accion
+                          - prioridad: n significa +1 que a prioridad anterior (vai aumentando secuencialmente)
+                          - accion: neste caso:
+                                - ExecIf(expresion?aplicacion_true:aplicacion_false): nestos casos traducese, si o ARG2=Answer, a clave pasaria 
+                                                                                      a ser 'a' definindoa localmente (a variable solo é accesibles desde 
+                                                                                      a subrutina)
+Linea 11 -> comproba si a variable key está null
+Linea 12 -> asignamos a variable familykey co patron calls_{familia}/{clave} -> calls_{valor arg1}/{valor key}
+Linea 13 -> alamcenamos na bd a variable familykey
+Linea 14 -> comproba si a variable count está null, si o está poñemolo a 0
+Linea 15 -> incrementamos a variable count
+Linea 16 -> finalización da extension
+
+
+EJERCICIO 4:
+
+Análisis codigo:
+
+Linea 1 -> [sub_sipdial]
+Linea 2 -> ; Dial a user and save the call information
+Linea 3 -> ; Parameters:
+Linea 4 -> ; ARG1: PJSIP endpoint (e.g., sip1 or sip2)
+Linea 5 -> ; ARG2: Timeout
+Linea 6 -> ; ARG3: Options
+Linea 7 -> exten => start,1,Verbose(1, Dialing SIP user ${ARG1})
+Linea 8 -> same => n,Dial(pjsip/${ARG1},${ARG2},${ARG3})
+Linea 9 -> same => n(record),GoSub(sub_recordcallinfo,start,1(${ARG1},${DIALSTATUS}))
+Linea 10 -> same => n,Return()
+
+Linea 11 -> exten => h,1,Goto(start,record)
+
+Linea 8 -> Dial() é unha aplicacion, a estructura de Dial(destino, timeout, opciones). O unico parametro obligatorio é o 1º, os outros si se 
+deixa en blanco ponse un hueco entre as comas ->Dial(SIP/SOFTPHONE_B,,m)
+
+Linea 9 -> estructura de GoSub([[context,]exten,]priority[(arg1[,argN])]). Permite executar un contexto/extensión/prioridad pasándolle parámetros
+e volver de novo ao punto de chamada
+
+Linea 11 -> estructura Goto(extension, prioridad), salta á prioridade dada dentro da extesion dada.
+
+
+EJERCICIO 5:
+
+Análisis codigo:
+
+[practica1]
+Linea 1 -> exten => 01,1,Verbose(1,Dial user sip1)
+Linea 2 -> same  => n,GoSub(sub_sipdial,start,1(sip1,,))
+Linea 3 -> same  => n,HangUp()
+Linea 4 -> exten => 02,1,Verbose(1,Dial user sip2)
+Linea 5 -> same  => n,GoSub(sub_sipdial,start,1(sip2,,))
+Linea 6 -> same  => n,HangUp()
+
+Linea 1,4 -> especificar a extension de cada usuario (sip1 e sip2)
+Linea 2,5 -> chamar a subrutina sub_sipdial para que se inicie cos paramentros que se lle pasa (os parámetros en blanco son Timeout y Options de Dial)
+Linea 3,6 -> colgar e cerrar o canal
+
+
+EJERCICIO 6:
+
+Análisis código:
+
+[sub_voicemail]
+; Call voicemail after a Dial
+; Parameters
+; ARG1: mailbox@context
+; ARG2: value of DIALSTATUS
+; ARG3: additional options to voicemail
+Linea 1 -> exten => start,1,Verbose(1, Executing sub_voicemail for ${ARG1})
+Linea 2 -> same => n,GotoIf($[ ${ISNULL(${ARG2})} | ${ARG2} = ANSWER ]?exit)
+Linea 3 -> same => n,Set(LOCAL(message)=${IF($[${ARG2}=BUSY]?b:u)})
+Linea 4 -> same => n,VoiceMail(${ARG1},${message}${ARG3})
+Linea 5 -> same => n(exit), Return()
+
+Linea 2 -> aqui comprobamos si o estado do dial. Solamente damos a accion si se cumple a condicion, ao non dar o caso contrario,
+osea que non cumpla as condicions seguimos ca seguinte prioridad da extension.
+
+Linea 3 -> inicializamos a variabel message. Para eso, miramos si o estado é ocupado ou no. No caso que estea ocupado, reproducimos a voz
+de ocupado (b), no caso contrario reproduce o saludo de non disponible (u) 
+
+Linea 4 -> activamos o buzon de voz, cos parámetros mailbox[@contexto] -> ${ARG1} e opcions -> ${message}${ARG3} 
+
+
+
+EJERCICIO 7:
+
+Análisis código (continuacion da subrutina practica1):
+
+Linea 1 -> exten => _00[1-2],1,Verbose(1,Say extension and dial user)
+Linea 2 -> same => n,Playback(you-have-dialed)
+Linea 3 -> same => n,SayDigits(${EXTEN})
+Linea 4 -> same => n,Set(user=sip${EXTEN:2:1})
+Linea 5 -> same => n,GoSub(sub_sipdial,start,1(${user}))
+Linea 6 -> same => n,GoSub(sub_voicemail,start,1(${MAILBOX_${user}},${DIALSTATUS}))
+Linea 7 -> same => n,HangUp()
+
+Linea 1 -> definese a extension usando pattern-matching (indicase con _ e nese caso as extensions poden ser 001 ou 002)
+Linea 2 -> Playback -> reproduce un audio no canal
+Linea 3 -> SayDigits -> repoduce o valor da extension (001,002)
+Linea 4 -> iniciamos a variable user como sip1 ou sip2, {EXTEN:2:1} significa que nos quedamos dentro de EXTEN co numero 2 ou 1 según o pattern_matching
+que hai na linea 1
+Linea 5 -> vamos a subrutina sub_sipdial pasandolle o nombre do usuario 
+Linea 6 -> vamos a subrutina sub_voicemail pasandolle o mailbox do usuario e o estado do dialplan
+
+
+EJERCICIO 8:
+
+Análisis código (continuacion de subrutina practica1):
+
+Linea 1 -> exten => 120,1,Verbose(1,Check voicemail messages)
+Linea 2 -> same => n,Set(user=${CHANNEL(endpoint)})
+Linea 3 -> same => n,Set(mailbox=${MAILBOX_${user}})
+Linea 4 -> same => n,GotoIf(${ISNULL(${mailbox})}?end:)
+Linea 5 -> same => n,VoiceMailMain(${mailbox})
+Linea 6 -> same => n,HangUp()
+Linea 7 -> same => n(end),Verbose(1,Mailbox for user ${user} not defined)
+Linea 8 -> same => n,Playback(feature-not-avail-line)
+Linea 9 -> same => n,HangUp()
+
+Linea 2 -> inicializamos a variable user ca funcion channel, esta funcion recibe un parámetro e pode ser:
+            * endpoint: nos daría el nombre del endpoint en el canal (p.ej. sip1).
+            * name: nos daría el nombre del canal actual.
+            * exten: nos daría el nombre de la extensión actual.
+            * context: nos daría el nombre del contexto actual.
+
+Linea 3 -> inicializamos a variable mailbox según o endpoint que sea (sip1 ou sip2)
+Linea 4 -> comproba que a variable mailbox non sea null, si é null salta a etiqueta end(linea 7)(gotoif comproba a condicion 
+e si non se cumple salta as prioridades da extension que se especifica), si non continua ca seguinte prioridade da extension
+Linea 5 -> iniciamos a aplicacion VoiceMailMain co valor da variable mailbox e acabase a extension (linea 6)
+Linea 7 -> no caso en que a variable mailbox sea null, saltase a esta prioridade e reproducese o audio que se pasa na lina 8
+
+
+EJERCICIO 9:
+
+Análisis código (continuacion de subrutina practica1):
+
+exten => _99[1-2],1,Verbose(1,Reject call in given times)
+same => n,Verbose(1,System time is: ${STRFTIME()})
+same => n,Verbose(1,Local time is: ${STRFTIME(,${TIMEZONE})})
+same => n,GoToIfTime(15:30-20:00,mon-thu,*,sep-jul?accept)
+same => n,Playback(unavailable)
+same => n,Playback(please-try-again-later)
+same => n,Goto(exit)
+same => n(accept),GoSub(sub_sipdial,start,1(sip${EXTEN:2:1},,))
+same => n(exit),HangUp() 
+
+Linea 1 -> definimos a extension usando pattern_matching para que poda ser 991 ou 992
+Linea 2 -> sacamos por pantalla a hora do sistema FreePBX
+Linea 3 -> sacamos por pantalla a hora local da zona (ca variable global TIMEZONE=Europe/Madrid)
+Linea 4 ->condicional de tempo, si dentro de ese rango horario que se especifica se cumple, vamos a etiqueta que se indica na
+condicion verdadeira
+Linea 5-6-7 -> si no GoToIfTime no entra no accpet, sigue a extension e saltaria a voz de que o usuario non está disponible e que o intente
+mais tarde. Na linea 7 iriamos a prioridade etiquetado como exit
+Linea 8 -> si no GoToIfTime entra en accept, vamos a prioridade etiquetada como accept, executase a chamada chamando a subrutina sub_sipdial
+e pasandolle o sip que recibe a chamada, unha vez acaba vamos a chamada, saltaria a seguinte 
+Linea 11 -> fin da extension si se colga a chamada
+
+
+EJERCICIO 10:
+
+[sub_getcallscount]
+; Gets the count of calls using AstDB
+; ARG1: Endpoint (sip1 or sip2)
+; ARG2: Type: a(answer), b(BUSY), u(CHANUNAVAIL), n(NOANSWER), o(OTHER)
+Linea 1 -> exten => start,1,Verbose(3,Getting call numer for: User ${ARG1}, type: ${ARG2})
+Linea 2 -> same => n,Set(LOCAL(familykey)=calls_${ARG1}/${ARG2})
+Linea 3 -> same => n,Set(LOCAL(count)=${DB(${LOCAL(familykey)})})
+Linea 4 -> same => n,ExecIf($[${ISNULL(${LOCAL(count)})} = 1]?Set(LOCAL(count)=0))
+Linea 5 -> same => n,Return(${LOCAL(count)})
+
+Linea 1 -> creamos a extension
+Linea 2 -> asignamos a variable familykey ca familia calls_{familia}/{clave} -> calls_{valor arg1}/{valor arg2}
+Linea 3 -> setteamos a variable local count co valor de familykey
+Linea 4 -> comproba si a variable count está null, si o está poñemolo a 0 
+Linea 5 -> devolvemos o valor que ten count(0 si estaba a null, si non, os datos que necesitamos)
+
+
+EJERCICIO 11:
+
+[menu1]
+exten => start,1,Background(press)
+same => n,Background(digits/0)
+same => n,Background(or-press)
+same => n,Background(digits/1)
+same => n,Background(or-press)
+same => n,Background(digits/2)
+same => n,Background(or-press)
+same => n,Background(digits/3)
+same => n,WaitExten(10)
+
+exten => 0,1,Set(LOCAL(key)=u)
+same => n,Set(LOCAL(play)=unavaliable)
+same => n,GoTo(2,avisar)
+
+exten => 1,1,Set(LOCAL(key)=b)
+same => n,Set(LOCAL(play)=on-busy)
+same => n,GoTo(2,avisar)
+
+exten => 2,1,Set(LOCAL(key)=a)
+same => n,Set(LOCAL(play)=route-sip)
+
+same => n(avisar),GoSub(sub_getcallscount,start,1(${CHANNEL(endpoint)},${LOCAL(key)}))
+same => n,SayNumber(${GOSUB_RETVAL})
+same => n,Playback(${LOCAL(play)})
+same => n,GoTo(start,1)
+
+exten => 3,1,Playback(vm-goodbye)
+same => n,HangUp()
+
+
+exten => i,1,Playback(pbx-invalid)
+same => n,GoTo(menu1,start,1)
+
+exten => t,1,Playback(vm-goodbye)
+same => n,HangUp()
+
+
+Análisis código (continuacion de subrutina practica1):
+
+exten => #0,1,Verbose("Menu #0")
+same => n,GoSub(menu1,start,1())
+
